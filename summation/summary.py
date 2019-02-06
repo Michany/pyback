@@ -142,8 +142,11 @@ class Summary():
 
     def plot(self, kind='nav+pnl', fig_size=None):
         '''
-        'nav+pnl': 上方净值曲线，下方盈亏
-        'ac': 自相关系数（平稳性检验）
+        Parameters
+        ----------
+        kind : 绘图类型
+            'nav+pnl' : 上方净值曲线，下方盈亏  
+            'ac' : 自相关系数（平稳性检验）  
         '''
         if kind == 'nav+pnl':
             if fig_size is None:

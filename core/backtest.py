@@ -88,9 +88,9 @@ class BackTest(Record):
         self.cash = np.append(self.cash, new_account.cash)
         self._batching()
 
-    def _batching(self):
+    def _batching(self, batch_size=500):
         # TODO 加快拼接的速度（每1000条记录分一批？）
-        if len(self.totalCapital) >= 1000:
+        if len(self.totalCapital) >= batch_size:
             # 把原有的记录保存
             self.subTest.append(self.info)
             # 将原有记录清空至只剩一条
@@ -220,6 +220,7 @@ class BackTest(Record):
         global COUNT
         COUNT += 1
         progress = COUNT/len(self.timeIndex)
+
         print("\r[Backtest Progress {:.1%}] [{}]".format(
             progress, '='*int(progress*30)+'>'+' '*(29-int(progress*30))),
             end='')
