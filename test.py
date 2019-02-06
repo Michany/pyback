@@ -45,7 +45,7 @@ posSlow[(posSlow.T.sum()>0.9) & (posFast.T.sum()<0.32)] = posFast
 
 
 #%%
-test = pyback.BackTest(1e6,300)
+test = pyback.BackTest(1e6,300, compound=250)
 test.timeIndex = price.index
 for day in posSlow.index:
     test.adjustPosition(to=posSlow.loc[day].values, price=priceFill2.loc[day].values)

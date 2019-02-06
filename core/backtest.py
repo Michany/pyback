@@ -34,18 +34,27 @@ class BackTest(Record):
 
     Parameters
     ----------
-    capital : initial capital of the backtest.
+    capital : initial capital of the backtest.  
         If the initial capital is too low, standardization process may cause
         unexpected outcomes.
     assetCapacity : number of the kinds of all available assets.
     timeIndex : the time-series-alike index for final results.
+    batch : whether or not should pyback use batch method to accelerate the process.  
+        The default value is `True` (Highly recommended), with `batch_size=250`.
+    batch_size : the size of each batch. 
+    compound : the length of the cycle that pyback use to compound interest.
+        Meanings:
+            0 : do not use compound returns.
+            int > 0 : compound returns by every `compound` records.
+        This value is 0 by default.
 
     Examples
     --------
     >>> test = pyback.BackTest(1e7, 300, price.index)
     '''
 
-    def __init__(self, capital, assetCapacity, timeIndex=None, **karg):
+    def __init__(self, capital, assetCapacity, timeIndex=None, 
+                 batch=True, batch_size=250, compound=0, **karg):
         '''
         输入参数timeIndex推荐使用pd.Series，因为自行创建的时间序列很可能包含了非交易时间段。
         '''
@@ -67,6 +76,13 @@ class BackTest(Record):
         self.pnl = np.zeros(shape=(self.assetCapacity))
         self.subTest = []
 
+        self.PARAMETERS = dict()
+        self.PARAMETERS['batch'] = batch
+        self.PARAMETERS['batch_size'] = batch_size
+        if compound<0 or not isinstance(compound, int):
+            raise ValueError("Compound cycle should be a positive integer.")
+        self.PARAMETERS['compound'] = compound
+
     @property
     def info(self):
         return dict(timeIndex=self.timeIndex, assetCapacity=self.assetCapacity,
@@ -80,14 +96,14 @@ class BackTest(Record):
 
         return
 
-    def _addRecord(self, new_account: Record, batch_size=300):
+    def _addRecord(self, new_account: Record):
 
         self.position = np.append(self.position, new_account.position)
         self.share = np.append(self.share, new_account.share)
         self.balance[-self.assetCapacity:] = new_account.balance
         self.totalCapital[-1] = new_account.totalCapital
         self.cash = np.append(self.cash, new_account.cash)
-        if len(self.totalCapital) >= batch_size:
+        if (self.PARAMETERS['batch'] and len(self.totalCapital) >= self.PARAMETERS['batch_size']):
             self._batching()
 
     def _batching(self):
@@ -229,7 +245,11 @@ class BackTest(Record):
 
         if COUNT == 0:
             t0 = time.time()
+
         COUNT += 1
+        if self.PARAMETERS['compound']>0:
+            self._compound_returns(COUNT)
+
         progress = COUNT/len(self.timeIndex)
 
         if verbose:
@@ -237,6 +257,9 @@ class BackTest(Record):
 
         if progress >= 1:
             self._final_work()
+    def _compound_returns(self, count):
+        if count % self.PARAMETERS['compound'] == 0:
+            self.initialCapital = self.totalCapital[-1]
 
     def _final_work(self):
         global COUNT, t0
