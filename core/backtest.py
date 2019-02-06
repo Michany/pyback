@@ -64,6 +64,7 @@ class BackTest(Record):
 
         self.initialCapital = capital
         self.pnl = np.zeros(shape=(self.assetCapacity))
+        self.subTest = []
 
     @property
     def info(self):
@@ -79,13 +80,39 @@ class BackTest(Record):
         return
 
     def _addRecord(self, new_account: Record):
-        # TODO 加快拼接的速度（每1000条记录分一批？）
+
         self.position = np.append(self.position, new_account.position)
         self.share = np.append(self.share, new_account.share)
         self.balance[-self.assetCapacity:] = new_account.balance
         self.totalCapital[-1] = new_account.totalCapital
         self.cash = np.append(self.cash, new_account.cash)
+        self._batching()
 
+    def _batching(self):
+        # TODO 加快拼接的速度（每1000条记录分一批？）
+        if len(self.totalCapital) >= 1000:
+            # 把原有的记录保存
+            self.subTest.append(self.info)
+            # 将原有记录清空至只剩一条
+            self.totalCapital = self.totalCapital[-1:]
+            self.position = self.position[-self.assetCapacity:]
+            self.share = self.share[-self.assetCapacity:]
+            self.balance = self.balance[-self.assetCapacity:]
+            self.cash = self.cash[-1:]
+            self.pnl = self.pnl[-self.assetCapacity:]
+
+    def _pack_batches(self):
+        # 把self.subTest中的记录和现有记录拼合
+        
+        for batch_data in reversed(self.subTest):
+            self.totalCapital = np.append(batch_data['totalCapital'][:-1],self.totalCapital)
+            self.position = np.append(batch_data['position'][:-self.assetCapacity],self.position)
+            self.share = np.append(batch_data['share'][:-self.assetCapacity],self.share)
+            self.balance = np.append(batch_data['balance'][:-self.assetCapacity],self.balance)
+            self.cash = np.append(batch_data['cash'][:-1], self.cash)
+            self.pnl = np.append(batch_data['pnl'][:-self.assetCapacity],self.pnl)
+        # del self.subTest
+            
     def _inputExamination(self, to, price):
 
         if len(price) != self.assetCapacity:
@@ -197,4 +224,5 @@ class BackTest(Record):
             progress, '='*int(progress*30)+'>'+' '*(29-int(progress*30))),
             end='')
         if progress >= 1:
+            self._pack_batches()
             COUNT = 0
