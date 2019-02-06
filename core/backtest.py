@@ -1,10 +1,10 @@
+import time
 import warnings
-from datetime import datetime, time, timedelta
 
 import numpy as np
 import pandas as pd
 
-from .func import vfillna, vstandardizeDealAmount
+from .func import vfillna, vstandardizeDealAmount, progress_pretty_print
 
 COUNT = 0
 
@@ -44,6 +44,7 @@ class BackTest(Record):
     --------
     >>> test = pyback.BackTest(1e7, 300, price.index)
     '''
+
     def __init__(self, capital, assetCapacity, timeIndex=None, **karg):
         '''
         输入参数timeIndex推荐使用pd.Series，因为自行创建的时间序列很可能包含了非交易时间段。
@@ -51,8 +52,8 @@ class BackTest(Record):
         super().__init__(capital, assetCapacity=assetCapacity)
 
         if timeIndex is None:
-            print("[Warning] No time index data available, \
-                please input it while running loops.")
+            print(
+                "[Warning] No time index data available, please input it while running loops.")
             self.timeIndex = None
         elif isinstance(timeIndex, pd.DatetimeIndex):
             self.timeIndex = timeIndex
@@ -79,40 +80,46 @@ class BackTest(Record):
 
         return
 
-    def _addRecord(self, new_account: Record):
+    def _addRecord(self, new_account: Record, batch_size=300):
 
         self.position = np.append(self.position, new_account.position)
         self.share = np.append(self.share, new_account.share)
         self.balance[-self.assetCapacity:] = new_account.balance
         self.totalCapital[-1] = new_account.totalCapital
         self.cash = np.append(self.cash, new_account.cash)
-        self._batching()
-
-    def _batching(self, batch_size=500):
-        # TODO 加快拼接的速度（每1000条记录分一批？）
         if len(self.totalCapital) >= batch_size:
-            # 把原有的记录保存
-            self.subTest.append(self.info)
-            # 将原有记录清空至只剩一条
-            self.totalCapital = self.totalCapital[-1:]
-            self.position = self.position[-self.assetCapacity:]
-            self.share = self.share[-self.assetCapacity:]
-            self.balance = self.balance[-self.assetCapacity:]
-            self.cash = self.cash[-1:]
-            self.pnl = self.pnl[-self.assetCapacity:]
+            self._batching()
+
+    def _batching(self):
+        # 加快拼接的速度
+        # 把原有的记录保存
+        self.subTest.append(self.info)
+        # 将原有记录清空至只剩一条
+        self.totalCapital = self.totalCapital[-1:]
+        self.position = self.position[-self.assetCapacity:]
+        self.share = self.share[-self.assetCapacity:]
+        self.balance = self.balance[-self.assetCapacity:]
+        self.cash = self.cash[-1:]
+        self.pnl = self.pnl[-self.assetCapacity:]
 
     def _pack_batches(self):
         # 把self.subTest中的记录和现有记录拼合
-        
+
         for batch_data in reversed(self.subTest):
-            self.totalCapital = np.append(batch_data['totalCapital'][:-1],self.totalCapital)
-            self.position = np.append(batch_data['position'][:-self.assetCapacity],self.position)
-            self.share = np.append(batch_data['share'][:-self.assetCapacity],self.share)
-            self.balance = np.append(batch_data['balance'][:-self.assetCapacity],self.balance)
-            self.cash = np.append(batch_data['cash'][:-1], self.cash)
-            self.pnl = np.append(batch_data['pnl'][:-self.assetCapacity],self.pnl)
+            self.totalCapital = np.append(
+                batch_data['totalCapital'][:-1], self.totalCapital)
+            self.position = np.append(
+                batch_data['position'][:-self.assetCapacity], self.position)
+            self.share = np.append(
+                batch_data['share'][:-self.assetCapacity], self.share)
+            self.balance = np.append(
+                batch_data['balance'][:-self.assetCapacity], self.balance)
+            self.cash = np.append(
+                batch_data['cash'][:-1], self.cash)
+            self.pnl = np.append(
+                batch_data['pnl'][:-self.assetCapacity], self.pnl)
         # del self.subTest
-            
+
     def _inputExamination(self, to, price):
 
         if len(price) != self.assetCapacity:
@@ -135,7 +142,7 @@ class BackTest(Record):
         If the target postion is not 100% full, the rest capital will be 
         alocated to cash account.  
         如果仓位不满100%，则剩余的放现金。
-        
+
         Excessive target postion (>100%) will raise an immediate error.  
         如果仓位超过100%，则会立即报错。
 
@@ -166,7 +173,7 @@ class BackTest(Record):
         # TODO 原先就有持仓，不能这样简单的买入，要在原有基础上买入相差的量
         # TODO 单利还是复利？
         if compounded_return or self.totalCapital[-1] < self.initialCapital:
-                targetShare = self.totalCapital[-1] * to
+            targetShare = self.totalCapital[-1] * to
         else:
             targetShare = self.initialCapital * to
 
@@ -204,26 +211,35 @@ class BackTest(Record):
 
     def _updateHoldings(self, new_price: np.ndarray):
         target = self.share[-self.assetCapacity:] * new_price
-        self.pnl = np.append(self.pnl, target - self.balance[-self.assetCapacity:])
+        self.pnl = np.append(self.pnl, target -
+                             self.balance[-self.assetCapacity:])
         self.balance = np.append(self.balance, target)
         self.totalCapital = np.append(
             self.totalCapital, self.balance[-self.assetCapacity:].sum() + self.cash[-1])
         return
 
-    def updateStatus(self):
+    def updateStatus(self, verbose=True):
         '''更新每一轮的状态/回测进度
-        
+
         Examples
         --------
         >>> test.updateStatus()
         '''
-        global COUNT
+        global COUNT, t0
+
+        if COUNT == 0:
+            t0 = time.time()
         COUNT += 1
         progress = COUNT/len(self.timeIndex)
 
-        print("\r[Backtest Progress {:.1%}] [{}]".format(
-            progress, '='*int(progress*30)+'>'+' '*(29-int(progress*30))),
-            end='')
+        if verbose:
+            progress_pretty_print(progress)
+
         if progress >= 1:
-            self._pack_batches()
-            COUNT = 0
+            self._final_work()
+
+    def _final_work(self):
+        global COUNT, t0
+        COUNT = 0
+        self._pack_batches()
+        print("\n[Time Elapsed] {:.2f}s".format(time.time()-t0))

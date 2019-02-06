@@ -53,4 +53,4 @@ for day in posSlow.index:
 s = pyback.Summary(test)
 totalCapital, cash, balance, share, position, pnl, sum_pnl, sum_pct, nav = s.to_frame(columns=price.columns)
 print("回测完毕")
-
+s.info
