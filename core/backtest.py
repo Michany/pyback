@@ -214,11 +214,22 @@ class BackTest(Record):
         self._addRecord(targetRecord)
         return
 
-    def buy(self, **karg):
+    def openPosition(self, ratio, **karg):
+        '''
+        开仓
+        ----
 
+        输入两个方向的比例，进行交易。
+        '''
         return
 
-    def sell(self, **karg):
+    def closePosition(self, **karg):
+        '''
+        平仓
+        ---
+
+        将仓位平掉
+        '''
         return
 
     def factorRecord(self, factorName, values, timeStamp):
