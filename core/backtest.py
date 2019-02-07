@@ -150,7 +150,7 @@ class BackTest(Record):
             raise ValueError("Length not match! Required length is {},\
                 input length is {}".format(self.assetCapacity, len(to)))
 
-    def adjustPosition(self, to, price, compounded_return=False):
+    def adjustPosition(self, to, price):
         '''Adjust the postion directly to a target.
         Often used when there are many kinds of assets (e.g. Index Enhancement)  
         直接将仓位调整到目标状态，用于资产数量较多时（例如做股票指数增强）。
@@ -186,9 +186,9 @@ class BackTest(Record):
         self._inputExamination(to, price)
         self._updateHoldings(price)  # 用新一个tick的数据更新已有仓位的收益信息
 
-        # TODO 原先就有持仓，不能这样简单的买入，要在原有基础上买入相差的量
-        # TODO 单利还是复利？
-        if compounded_return or self.totalCapital[-1] < self.initialCapital:
+        # 如果现有总资产少于initialCapital，则使用现有总资产；否则使用initialCapital
+        # initialCapital由_compound_returns()函数负责更新
+        if self.totalCapital[-1] < self.initialCapital:
             targetShare = self.totalCapital[-1] * to
         else:
             targetShare = self.initialCapital * to
@@ -214,11 +214,39 @@ class BackTest(Record):
         self._addRecord(targetRecord)
         return
 
-    def buy(self, **karg):
+    def openPosition(self, ratio, price):
+        '''
+        套利策略开仓
+        ----------
 
+        输入两个方向的比例，进行交易。
+        '''
+        warnings.simplefilter("ignore")
+
+        self._updateHoldings(price)  # 用新一个tick的数据更新已有仓位的收益信息
+
+        # 按照比例
+        targetShare = self.initialCapital * ratio
+
+        targetShare /= price
+        targetShare = vfillna(targetShare)
+        targetShare = vstandardizeDealAmount(targetShare)  # 近似到100股
+
+        targetRecord = Record(self.totalCapital[-1], self.assetCapacity)
+        targetRecord.share
+
+        self.balance
         return
 
-    def sell(self, **karg):
+    def closePosition(self, price):
+        '''
+        套利策略平仓
+        ----------
+
+        将仓位平掉
+        '''
+        self.
+        self.balance
         return
 
     def factorRecord(self, factorName, values, timeStamp):
@@ -257,6 +285,7 @@ class BackTest(Record):
 
         if progress >= 1:
             self._final_work()
+
     def _compound_returns(self, count):
         if count % self.PARAMETERS['compound'] == 0:
             self.initialCapital = self.totalCapital[-1]

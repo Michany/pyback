@@ -1,0 +1,47 @@
+* [33mcommit 9e18f737341fcb5f6d1ff3c4948c97b2e26da5bf[m[33m ([m[1;36mHEAD -> [m[1;32mArbitrage[m[33m, [m[1;31mpyback/Arbitrage[m[33m)[m
+[31m|[m Author: Michael <702422317@qq.com>
+[31m|[m Date:   Thu Feb 7 13:41:30 2019 +0800
+[31m|[m 
+[31m|[m     基础框架
+[31m|[m 
+* [33mcommit 866587112b9048ec6882c376dbb90b79e7c94a17[m
+[31m|[m Author: Michael <702422317@qq.com>
+[31m|[m Date:   Thu Feb 7 00:27:50 2019 +0800
+[31m|[m 
+[31m|[m     first commit
+[31m|[m 
+* [33mcommit f46fbf70f5f787590703715b422b961ececea624[m
+[31m|[m Author: Michael <702422317@qq.com>
+[31m|[m Date:   Wed Feb 6 15:40:38 2019 +0800
+[31m|[m 
+[31m|[m     compound returns available
+[31m|[m 
+* [33mcommit c34734052f07d7e9467b52e0cbbf36e9eaefe516[m
+[31m|[m Author: Michael <702422317@qq.com>
+[31m|[m Date:   Wed Feb 6 12:35:34 2019 +0800
+[31m|[m 
+[31m|[m     batch minor updated
+[31m|[m 
+* [33mcommit c8a8a77443e96b7eebb421f154e88d2cd2f035a3[m
+[31m|[m Author: Michael <702422317@qq.com>
+[31m|[m Date:   Wed Feb 6 12:05:49 2019 +0800
+[31m|[m 
+[31m|[m     batch enhanced
+[31m|[m 
+* [33mcommit 54be85b90f45c48ae95c649c103706a341d0a13d[m
+[31m|[m Author: Michael <702422317@qq.com>
+[31m|[m Date:   Wed Feb 6 11:59:13 2019 +0800
+[31m|[m 
+[31m|[m     Batching method, faster.
+[31m|[m 
+* [33mcommit 0a2ed3f4be1b7c901b5f6d347374b93edb503f92[m
+[31m|[m Author: Michael <702422317@qq.com>
+[31m|[m Date:   Wed Feb 6 11:20:51 2019 +0800
+[31m|[m 
+[31m|[m     add README
+[31m|[m 
+* [33mcommit 6f2f238dcb95ba7c186921f5e8f65f81aa25d6ca[m
+  Author: Michael <702422317@qq.com>
+  Date:   Wed Feb 6 10:58:38 2019 +0800
+  
+      first commit
