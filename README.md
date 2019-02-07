@@ -1,16 +1,6 @@
 # PyBack
 __An experimental module to perform backtests on Python__
 
-TODO List
----------
-- [x] 加快回测速度 
-- [ ] 验证adjustPosition等交易的正确性
-- [ ] 增加手续费
-
-- [ ] 套利策略test完成
-- [ ] 套利函数正确性的验证
-- [ ] 套利滑点
-
 
 Branch
 ------
