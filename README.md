@@ -1,5 +1,5 @@
 # PyBack
-__An experimental module to perform backtests for Python__
+__An experimental module to perform backtests in Python__
 
 
 
