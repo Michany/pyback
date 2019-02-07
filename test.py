@@ -9,8 +9,7 @@ import talib
 TODAY = datetime.date.today().strftime('%Y-%m-%d')
 
 # 获取数据
-hs300 = pd.read_hdf(r"PriceData_1123.h5",'hs300')
-price = pd.read_hdf(r"PriceData_1123.h5",'price')
+price = pd.read_hdf(r"..\PriceData_1123.h5",'price')
 priceFill = price.fillna(method='ffill')
 priceFill2 = priceFill.fillna(0).iloc[:,:]
 

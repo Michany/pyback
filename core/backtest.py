@@ -168,18 +168,19 @@ class BackTest(Record):
 
         Parameters
         ----------
-        to : the target postion.
+        to : the target postion.  
         price : the price data.
             The price data must be congruent with the target position.
             Please double check if the target postion data contains 
             price data in the future.
-        compounded_return : Whether pyback should use compounded method (复利).
 
         Examples
         --------
+        ```
         >>> for day in pos.index:
         >>>     test.adjustPosition(to, price)
         >>>     test.updateStatus()
+        ```
         '''
         warnings.simplefilter("ignore")
 
@@ -245,7 +246,6 @@ class BackTest(Record):
 
         将仓位平掉
         '''
-        self.
         self.balance
         return
 
@@ -295,3 +295,8 @@ class BackTest(Record):
         COUNT = 0
         self._pack_batches()
         print("\n[Time Elapsed] {:.2f}s".format(time.time()-t0))
+
+    def __del__(self):
+        global COUNT
+        COUNT = 0
+        del self
