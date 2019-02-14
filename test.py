@@ -53,3 +53,15 @@ s = pyback.Summary(test)
 totalCapital, cash, balance, share, position, pnl, sum_pnl, sum_pct, nav = s.to_frame(columns=price.columns)
 print("回测完毕")
 s.info
+
+#%% 因子IC计算
+factor = RSI_Slow.resample('M').mean()
+returns = priceFill2.resample('M').last()/priceFill2.resample('M').last().shift(1)-1
+returns.fillna(0, inplace=True)
+returns.replace(np.inf, 0, inplace=True)
+
+year = '2018'
+f, r = factor[year], returns[year]
+month = 2
+np.corrcoef(f.values[month-1], r.values[month-1])
+
