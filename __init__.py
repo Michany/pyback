@@ -15,6 +15,10 @@ if missing_dependencies:
         "Missing required dependencies {0}".format(missing_dependencies))
 del hard_dependencies, dependency, missing_dependencies
 
+try:
+    from pyback.core.data import DataManager
+except ImportError:
+    pass
 from pyback.core.backtest import Record, BackTest
 from pyback.summation.summary import Summary
  
