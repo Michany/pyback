@@ -34,6 +34,7 @@ class Summary():
         else:                       # 分钟频及以上：用每年252/4天有效交易时间
             self._T = 42/self.frequency
 
+        self.factors = self._data_dict['factors']
         del self._data_dict
 
     @property
@@ -139,6 +140,23 @@ class Summary():
         for df in [balance, share, position, pnl]:
             df.columns = columns
         return totalCapital, cash, balance, share, position, pnl, sum_pnl, sum_pct, nav
+
+    def factor_IC(self):
+        for factor in self.factors.keys():
+            self._factor_IC(factor)
+        return
+
+    def _factor_IC(self, factorName):
+        '''
+        因子IC值
+
+        Reference
+        ---------
+
+        1. 《华泰单因子测试之换手率类因子》——华泰多因子系列之五
+        '''
+        return
+
 
     def plot(self, kind='nav+pnl', fig_size=None):
         '''

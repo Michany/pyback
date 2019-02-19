@@ -83,18 +83,37 @@ class BackTest(Record):
             raise ValueError("Compound cycle should be a positive integer.")
         self.PARAMETERS['compound'] = compound
 
+        self._factor = dict()
+
     @property
     def info(self):
         return dict(timeIndex=self.timeIndex, assetCapacity=self.assetCapacity,
                     totalCapital=self.totalCapital, balance=self.balance,
                     share=self.share, position=self.position,
-                    cash=self.cash, pnl=self.pnl,
+                    cash=self.cash, pnl=self.pnl, factors=self._factor
                     )
 
     @property
     def factors(self):
+        return self._factor.keys()
 
-        return
+    @factors.setter
+    def factors(self, factor_data):
+        key, value = factor_data
+        self._factor[key] = value
+    
+    @factors.deleter
+    def factors(self, key):
+        del self._factor[key]
+
+    def __getitem__(self, key):
+        try:
+            return self._factor[key]
+        except:
+            raise KeyError("Factor '%s' not found" % key)
+
+    # def factor(self, factorName:str):
+    #     return self._factor.get(factorName, None)
 
     def _addRecord(self, new_account: Record):
 
@@ -249,9 +268,22 @@ class BackTest(Record):
         self.balance
         return
 
-    def factorRecord(self, factorName, values, timeStamp):
+    # def factorRecord(self, factorName, values, timeStamp=None):
+    #     if len(values) != self.assetCapacity:
+    #         raise ValueError("Length of factor values does not match!")
+    #     self._factor[factorName] = np.append(self._factor.get(
+    #         factorName, np.zeros(shape=(self.assetCapacity))), values)
 
-        return
+    # def factorsRecord(self, factorNames, factorValues):
+    #     '''多个因子一起录入
+    #     '''
+    #     if len(factorNames)!=len(factorValues):
+    #         raise ValueError("Lengths of factor & values does not match!")
+
+
+    #     for i in range(len(factorNames)):
+    #         self.factorRecord(factorNames[i], factorValues[i])
+
 
     def _updateHoldings(self, new_price: np.ndarray):
         target = self.share[-self.assetCapacity:] * new_price
