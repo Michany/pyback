@@ -24,40 +24,28 @@ class Summary():
         self.netValue = self.totalCapital / self.totalCapital[0]
 
         # 数据频率（以天为单位）的获取、计算; 也可以手动指定
-        if self.timeIndex.freq is None:
-            self._frequency = (self.timeIndex[1]-self.timeIndex[0]).days
-            pass
-        else:
-            self._frequency = self.timeIndex.freq.delta.days
-        if self._frequency >= 1:    # 日频及以下：用每年252个交易日来算
-            self._T = 252/self.frequency
-        else:                       # 分钟频及以上：用每年252/4天有效交易时间
-            self._T = 42/self.frequency
+        try:
+            if self.timeIndex.freq is None:
+                self.frequency = (self.timeIndex[1]-self.timeIndex[0]).days
+            else:
+                self.frequency = self.timeIndex.freq.delta.days
+        except:
+            self.frequency = 252/12
+        
+        self.T = (self.timeIndex[-1]-self.timeIndex[0]).days/360
 
         self.factors = self._data_dict['factors']
         del self._data_dict
 
-    @property
-    def frequency(self):
-        return self._frequency
-
-    @frequency.setter
-    def frequency(self, str_freq: str):
-        freq = pd.tseries.frequencies.to_offset(str_freq)
-        freq = freq.delta.days
-        self._frequency = freq
-        if self._frequency >= 1:    # 日频及以下：用每年252个交易日来算
-            self._T = 252/self.frequency
-        else:                       # 分钟频及以上：用每年252/4天有效交易时间
-            self._T = 42/self.frequency
 
     @property
     def yearlyReturn(self):
-        return self.sum_pct.mean()*self._T
+        return (self.netValue[-1]-1)/self.T
+        # return self.sum_pct.mean()*self._T
 
     @property
     def yearlyReturnStd(self):
-        return self.sum_pct.std()*self._T**0.5
+        return self.sum_pct.std()*(252/self.frequency)**0.5
 
     @property
     def maxDrawdown(self):

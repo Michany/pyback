@@ -1,7 +1,7 @@
 import numpy as np
 
 def fillna(x):
-    return 0 if np.isnan(x) else x
+    return 0 if np.isnan(x) or np.isinf(x) else x
 
 vfillna = np.vectorize(fillna)
 

@@ -10,10 +10,11 @@ TODAY = datetime.date.today().strftime('%Y-%m-%d')
 
 # 获取数据
 
-price = pd.read_hdf(r"..\PriceData_1123.h5",'price')
+
+price = pd.read_hdf(r".\PriceData_1123.h5",'price')
 dm = pyback.DataManager()
-dm.get_muti_close_day(price.columns, '20060101', '20181231')
-price = dm.data
+dm.muti_stock_close_day(price.columns, '20060101', '20181231')
+price = dm.data[-1]
 priceFill = price.fillna(method='ffill')
 priceFill2 = priceFill.fillna(0).iloc[:,:]
 

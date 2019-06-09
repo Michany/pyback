@@ -222,12 +222,17 @@ class BackTest(Record):
         targetRecord.share = targetShare
         # 可能总和会超过总资本，必须修正！！（用现金账户来作为修正？）
         targetRecord.balance = targetRecord.share * price
+
         # 新的现金 = 原有总资金 - 现有持仓总金额
         targetRecord.cash = self.balance[-self.assetCapacity:].sum() + \
             self.cash[-1] - targetRecord.balance.sum()
+        # 扣掉手续费
+        # fee = np.abs(self.balance[-self.assetCapacity:] - targetRecord.balance) * 0.001
+        # print(fee.sum())
+        # targetRecord.balance -= fee 
         # 新的总资金 = 现有持仓总金额 + 新的现金
         targetRecord.totalCapital = np.dot(
-            targetRecord.share, price) + targetRecord.cash
+            targetRecord.share, price) + targetRecord.cash #- fee.sum()
         # 新的仓位 = 现有持仓 / 总资金
         targetRecord.position = targetRecord.balance / targetRecord.totalCapital
 
