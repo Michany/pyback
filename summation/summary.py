@@ -34,7 +34,7 @@ class Summary():
         
         self.T = (self.timeIndex[-1]-self.timeIndex[0]).days/360
 
-        self.factors = self._data_dict['factors']
+        # self.factors = self._data_dict['factors']
         del self._data_dict
 
 

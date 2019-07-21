@@ -78,7 +78,7 @@ class DataManager():
         # print(SQL)
         data = pd.read_sql(SQL, self.conn)
         if len(data.values) == 0:
-            print(index, '无相关数据，请检查该时间段内股票是否还未上市，或已退市')
+            print('\n', index, '无相关数据，请检查该时间段内股票是否还未上市，或已退市')
             return -1
 
         if adjust == 1:  # 后复权

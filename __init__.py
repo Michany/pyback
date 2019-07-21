@@ -20,7 +20,7 @@ try:
     from pyback.core.data import concat_op_info, empty_check    
 except ImportError:
     pass
-from pyback.core.backtest import Record, BackTest
+from pyback.core.backtest import Record, BackTest, StockBackTest, OptionBackTest
 from pyback.summation.summary import Summary
  
 # module level doc-string
