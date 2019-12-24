@@ -97,6 +97,25 @@ class DataManager():
         # self.data.append(data)
         return data
 
+    def stock_close_min(self, index, start_date, end_date, freq):
+        columns = "date, close"
+        table = index.lower()
+        SQL_date = "date between \'"+start_date+"\' and \'" + end_date + "\'"
+        SQL = "select {} from `{}` where {}".format(columns, table, SQL_date)
+        
+        # print(SQL)
+        data = pd.read_sql(SQL, self.conn)
+        if len(data.values) == 0:
+            print('\n', index, '无相关数据，请检查该时间段内股票是否还未上市，或已退市')
+            return -1
+
+        data = data.astype({'date': 'datetime64'})
+        data.set_index('date', inplace=True)
+        data = data.resample(freq).last().dropna()
+
+        # self.data.append(data)
+        return data
+
     def muti_stock_close_day(self, index, start_date, end_date, freq='1D', adjust=-1):
         '''
         index : Iterable objects for stock symbols  
@@ -116,7 +135,29 @@ class DataManager():
                 symbol, start_date, end_date, freq, adjust=adjust)
             try:
                 df.columns = [symbol]
-            except AttributeError as e:
+            except AttributeError:
+                df = pd.DataFrame(np.nan,index=muti_close.index,columns=[symbol])
+            muti_close = muti_close.join(df, how='outer')
+            print('\r'+symbol +
+                  " close data loaded... ({:.2%})".format((count)/len_index), end='')
+        print()
+
+        self.data.append(muti_close)
+        return muti_close
+
+    def muti_stock_close_min(self, index, start_date, end_date, freq='5min'):
+
+        len_index = len(index)
+        muti_close = pd.DataFrame()
+
+        count = 0
+        for symbol in index:
+            count += 1
+            df = self.stock_close_min(
+                symbol, start_date, end_date, freq)
+            try:
+                df.columns = [symbol]
+            except AttributeError:
                 df = pd.DataFrame(np.nan,index=muti_close.index,columns=[symbol])
             muti_close = muti_close.join(df, how='outer')
             print('\r'+symbol +
@@ -127,17 +168,17 @@ class DataManager():
         return muti_close
 
     def stock_close_factors(self, index, start_date, end_date, factor_list:list):
-        columns = ("ts_code, trade_date, close"+", {}"*len(factor_list))#.format(*factor_list)        
+        columns = ("ts_code, trade_date, close"+", {}"*len(factor_list)).format(*factor_list)        
         table = "daily"
         SQL_code = "ts_code="+"\'"+index + "\'"
         SQL_date = "trade_date between \'"+start_date.strip('-')+"\' and \'" + end_date.strip('-') + "\'"
         SQL = "select {} from {} where {} and {}".format(columns, table, SQL_code, SQL_date)
-
+        # print(SQL)
         data = pd.read_sql(SQL, self.conn)
         if len(data.values) == 0:
             print(index, '无相关数据，请检查该时间段内股票是否还未上市，或已退市')
             return -1
-        return
+        return data
 
     def etf_close_day(self, start_date, end_date=None, freq='D'):
         if end_date is None:
@@ -207,7 +248,7 @@ class DataManager():
             data = self._get_option_by_code(code)
         else:
             data = self._get_option_by_code(code)
-            data = data[data['trade_date']==date]
+            data = data[data['trade_date']==start_date]
         self.data.append(data)     
         return data
 

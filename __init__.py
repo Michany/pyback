@@ -18,8 +18,8 @@ del hard_dependencies, dependency, missing_dependencies
 try:
     from pyback.core.data import DataManager
     from pyback.core.data import concat_op_info, empty_check    
-except ImportError:
-    pass
+except ImportError as e:
+    print(e)
 from pyback.core.backtest import Record, BackTest, StockBackTest, OptionBackTest
 from pyback.summation.summary import Summary
  
