@@ -51,7 +51,7 @@ class DataManager():
         print("Data Collected:")
         for d in range(len(self.data)-1):
             if self.data[d+1] is not None:
-                print(d+1, "data length:", len(self.data[d+1]))
+                print("[{}] shape: {}".format(d+1, self.data[d+1].shape))
         return "<DataManager: {} groups of data collected>".format(len(self.data)-1)
 
     def clear(self):
@@ -297,7 +297,6 @@ class DataManager():
 
         data['trade_day'] = data['maturity_date'] - data['trade_date']
         data['ptmday']=data['trade_day'].apply(lambda x:x.days)
-        self.data.append(data)
         return data
 
     @empty_check
@@ -316,7 +315,6 @@ class DataManager():
         # 距离到期的天数
         data['ptmday'] = (data['maturity_date'] - data['trade_date']).apply(lambda x:x.days)
         data.set_index('trade_date')
-        self.data.append(data)
         return data
 
     def _get_option_info(self, code=None):
